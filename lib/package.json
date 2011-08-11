@@ -2,7 +2,7 @@
   "author": "AJ ONeal <coolaj86@gmail.com> (http://coolaj86.info)",
   "name": "jason",
   "description": "A JSON CORS/XHR2 application platform",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "repository": {
     "type": "git",
     "url": "git://github.com/coolaj86/jason.git"
@@ -11,6 +11,9 @@
   "engines": {
     "node": ">= 0.4.0"
   },
-  "dependencies": {},
+  "dependencies": {
+      "connect-queryparser": ">= 0.5.0"
+    , "connect-xcors": ">= 0.0.0"
+  },
   "devDependencies": {}
 }
