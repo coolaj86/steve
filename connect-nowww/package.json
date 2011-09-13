@@ -1,0 +1,16 @@
+{
+    "name": "nowww"
+  , "description": "Node.JS Connect module for no-www redirection"
+  , "author": "AJ ONeal <coolaj86@gmail.com> (http://coolaj86.info)"
+  , "url": "http://github.com/coolaj86/jason"
+  , "repository": {
+        "type": "git"
+      , "url": "git://github.com/coolaj86/jason.git"
+    }
+  , "keywords": ["nowww", "no-www", "connect"]
+  , "contributors": []
+  , "dependencies": {
+    }
+  , "main": "index"
+  , "version": "1.0.0"
+}
