@@ -2,7 +2,7 @@
   "author": "AJ ONeal <coolaj86@gmail.com> (http://coolaj86.info)",
   "name": "jason",
   "description": "A JSON CORS/XHR2 application platform",
-  "version": "0.1.5",
+  "version": "0.3.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/coolaj86/jason.git"
