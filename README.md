@@ -1,7 +1,7 @@
 Steve - JSON's best friend
 ===
 
-A JSON CORS/XHR2 application platform.
+steve.js is a JSON CORS/XHR2 application platform.
 
 **Application platform** means a web service that can be used to build integral applications. For example, Facebook offers an application platform.
 
