@@ -1,4 +1,4 @@
-Jason
+Steve - JSON's best friend
 ===
 
 A JSON CORS/XHR2 application platform.
