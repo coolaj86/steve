@@ -3,7 +3,7 @@
 
   function nowww(req, res, next) {
     var match
-      , host = req.headers.host.replace(/^www\./, '')
+      , host = (req.headers.host||'').replace(/^www\./, '')
       , hostname = host.split(':')[0]
       , protocol = 'http' + (req.connection.encrypted ? 's' : '') + '://'
       , href = protocol + host + req.url
