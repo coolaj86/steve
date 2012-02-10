@@ -2,7 +2,7 @@
   "author": "AJ ONeal <coolaj86@gmail.com> (http://coolaj86.info)",
   "name": "steve",
   "description": "JSON's best friend (a CORS/XHR2 application platform)",
-  "version": "0.5.4",
+  "version": "0.5.6",
   "repository": {
     "type": "git",
     "url": "git://github.com/coolaj86/steve.git"
@@ -12,8 +12,8 @@
     "node": ">= 0.4.0"
   },
   "dependencies": {
-      "connect": ">= 1.0.0"
-    , "nowww": ">= 1.1.0"
+      "connect": "1.8.x"
+    , "nowww": ">= 1.1.x"
     , "connect-xcors": ">= 0.0.0"
     , "express-chromeframe": ">= 0.2.0"
   },
