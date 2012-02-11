@@ -20,6 +20,11 @@
     ;
 
   server = connect.createServer(function (req, res, next) {
+    var count
+      ;
+
+    count = req.session.corsStore.get('foo') || 0;
+
     res.json({
         "url": req.url
       //, "adddress": req.socket.address()
@@ -29,7 +34,11 @@
       //, "search": req.search
       , "path": req.path
       , "headers": req.headers
+      , "count": count
     });
+
+    count += 1;
+    req.session.corsStore.set('foo', count);
   });
 
   server.listen(port, function () {
@@ -45,7 +54,6 @@
       var data
         ;
 
-      server.close();
       if (err) {
         console.error(err);
         return;
@@ -61,7 +69,17 @@
       assert.strictEqual(pathname, data.pathname, "pathnames don't match");
       //assert.strictEqual(search, data.search, "searchs don't match");
       assert.deepEqual(query, data.query, "queries don't match");
-      console.log('tests pass (ctrl+c to exit)');
+      assert.strictEqual(0, data.count);
+
+      request.get(fullurl, null, { headers: headers }).when(function (err, ahr, resp2) {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        assert.strictEqual(1, resp2.result.count);
+        server.close();
+        console.log('tests pass (ctrl+c to exit)');
+      });
     });
   });
 
