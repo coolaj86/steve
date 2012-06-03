@@ -1,3 +1,4 @@
+/*jshint strict:true node:true es5:true onevar:true laxcomma:true laxbreak:true*/
 (function () {
   "use strict";
 
@@ -17,16 +18,22 @@
     var val = this.store[key]
       ;
 
-    fn && nextTick(fn, val);
+    if (fn) {
+      nextTick(fn, val);
+    }
     return val;
   };
   Store.prototype.set = function (key, val, fn) {
     this.store[key] = val;
-    fn && nextTick(fn);
+    if (fn) {
+      nextTick(fn);
+    }
   };
   Store.prototype.delete = function (key, fn) {
-    delete store[key];
-    fn && nextTick(fn);
+    delete this.store[key];
+    if (fn) {
+      nextTick(fn);
+    }
   };
 
   function create() {

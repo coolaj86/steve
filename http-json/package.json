@@ -1,0 +1,18 @@
+{
+  "author": "AJ ONeal <coolaj86@gmail.com> (http://coolaj86.info/)",
+  "name": "http-json",
+  "description": "An extension of the http prototype supporting steve-style json responses in connect",
+  "version": "1.0.0",
+  "homepage": "http://github.com/coolaj86/steve",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/coolaj86/steve.git"
+  },
+  "main": "index",
+  "dependencies": {},
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}

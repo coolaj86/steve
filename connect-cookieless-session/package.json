@@ -1,0 +1,20 @@
+{
+  "author": "AJ ONeal <coolaj86@gmail.com> (http://coolaj86.info/)",
+  "name": "connect-cookieless-session",
+  "description": "A cookieless session handler for connect. Uses regular headers and or steve-style json, if available",
+  "version": "0.6.0",
+  "homepage": "http://github.com/coolaj86/steve",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/coolaj86/steve.git"
+  },
+  "main": "index",
+  "dependencies": {
+    "node-uuid": "1.x"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}
