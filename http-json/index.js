@@ -115,4 +115,5 @@
   }
 
   module.exports = create;
+  module.exports.init = create;
 }());
