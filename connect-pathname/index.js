@@ -10,9 +10,17 @@
     var urlObj
       ;
 
+    if (req.pathname) {
+      next();
+      return;
+    }
+
     urlObj = url.parse(req.url);
     req.pathname = req.pathname || urlObj.pathname;
-    req.query = req.query || querystring.parse(urlObj.search);
+
+    if (!req.query) {
+      req.query = req.query || querystring.parse(urlObj.search);
+    }
 
     next();
   }
