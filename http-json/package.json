@@ -8,6 +8,9 @@
     "type": "git",
     "url": "git://github.com/coolaj86/steve.git"
   },
+  "publishConfig": {
+    "registry": "http://registry.npmjs.org"
+  },
   "main": "index",
   "dependencies": {},
   "devDependencies": {},
