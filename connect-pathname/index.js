@@ -18,6 +18,8 @@
     urlObj = url.parse(req.url);
     req.pathname = req.pathname || urlObj.pathname;
 
+    // since we've already parsed the url, we might
+    // save the duplication and do the query
     if (!req.query) {
       req.query = req.query || querystring.parse((urlObj.search||"").substr(1));
     }
