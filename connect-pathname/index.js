@@ -19,7 +19,7 @@
     req.pathname = req.pathname || urlObj.pathname;
 
     if (!req.query) {
-      req.query = req.query || querystring.parse(urlObj.search);
+      req.query = req.query || querystring.parse((urlObj.search||"").substr(1));
     }
 
     next();

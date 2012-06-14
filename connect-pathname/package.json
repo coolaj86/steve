@@ -2,7 +2,7 @@
   "author": "AJ ONeal <coolaj86@gmail.com> (http://coolaj86.info/)",
   "name": "connect-pathname",
   "description": "Add's req.pathname to requests in connect",
-  "version": "0.6.1",
+  "version": "1.0.0",
   "homepage": "http://github.com/coolaj86/steve",
   "repository": {
     "type": "git",
