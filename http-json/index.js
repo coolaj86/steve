@@ -18,14 +18,14 @@
       var self = this
         ;
 
-      self.errors = self.errors || [];
+      self._errors = self._errors || [];
       if ('object' !== typeof opts) {
         opts = {};
       }
 
       opts.message = msg;
       opts.code = code;
-      self.errors.push(opts);
+      self._errors.push(opts);
     };
 
     // For adding things like 'session'
@@ -33,11 +33,11 @@
       var self = this
         ;
 
-      self.responseMeta = self.responseMeta || {};
+      self._responseMeta = self._responseMeta || {};
 
       // set
       if (undefined !== val) {
-        self.responseMeta[key] = val;
+        self._responseMeta[key] = val;
         return;
       }
 
@@ -47,10 +47,10 @@
       }
 
       // delete
-      delete self.responseMeta[key];
+      delete self._responseMeta[key];
     };
 
-    resProto.getJson = function (data, opts) {
+    resProto._getJson = function (data, opts) {
       var self = this
         , json
         , response = {}
@@ -58,27 +58,26 @@
         , replacer
         ;
 
-      Object.keys(self.responseMeta || {}).forEach(function (key) {
-        response[key] = self.responseMeta[key];
+      Object.keys(self._responseMeta || {}).forEach(function (key) {
+        response[key] = self._responseMeta[key];
       });
 
       opts = opts || {};
       space = (opts.debug) ? '  ': null;
       replacer = (opts.debug) ? null : removeStack;
       response.timestamp = Date.now();
-      response.errors = self.errors || [];
-      response.error = !!(response.error || (response.errors.length ? true : false));
-      response.success = !response.error;
+      response.errors = self._errors || [];
+      response.success = !response.errors.length;
       response.result = data;
 
-      self.statusCode = self.statusCode || opts.statusCode || (response.error ? 400 : 200);
+      self.statusCode = self.statusCode || opts.statusCode || (!response.success ? 400 : 200);
 
       try {
         json = JSON.stringify(response, replacer, space);
       } catch(e) {
         delete e.stack;
         self.statusCode = 500;
-        json = JSON.stringify({ error: true, errors: [e], statusCode: 500 }, replacer, space);
+        json = JSON.stringify({ timestamp: Date.now(), success: false, errors: [e], statusCode: 500 }, replacer, space);
       }
 
       return json;
@@ -93,14 +92,14 @@
       opts = opts || {};
       
       if ('string' === typeof data && opts.stringified) {
-        jsons = self.getJson('STEVE-TPL-XYZ-987', opts).split('"STEVE-TPL-XYZ-987"');
+        jsons = self._getJson('STEVE-TPL-XYZ-987', opts).split('"STEVE-TPL-XYZ-987"');
         jsons = [
             jsons[0]
           , data
           , jsons[1]
         ];
       } else {
-        jsons = [self.getJson(data, opts)];
+        jsons = [self._getJson(data, opts)];
       }
 
       self.charset = self.charset || 'utf-8';
