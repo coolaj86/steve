@@ -1,0 +1,18 @@
+{
+  "author": "AJ ONeal <coolaj86@gmail.com> (http://coolaj86.info/)",
+  "name": "connect-subdomains",
+  "description": "Add's req.subdomains to requests like connect.vhost did in 1.x",
+  "version": "1.0.0",
+  "homepage": "http://github.com/coolaj86/steve",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/coolaj86/steve.git"
+  },
+  "main": "index",
+  "dependencies": {},
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}
