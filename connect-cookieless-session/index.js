@@ -5,12 +5,13 @@
   // TODO use one config and then auto camelcase headers
   var http = require('http')
     , UUID = require('node-uuid')
-    , MemoryStore = require('./memory-store')
+    //, MemoryStore = require('./memory-store')
     , CorsSession = require('./cors-session')
     , defaultSessionKey = 'userSession'
-    , defaultSessionAppKey = 'appSession'
+    , defaultUrlPrefix = 'user-session'
+    //, defaultSessionAppKey = 'appSession'
     , defaultSessionHeader = 'X-User-Session'
-    , defaultSessionAppHeader = 'X-App-Session'
+    //, defaultSessionAppHeader = 'X-App-Session'
     , resProto = http.ServerResponse.prototype
     ;
 
@@ -24,6 +25,8 @@
       , appSession = {}
       , purgeInterval = options.purgeInterval || 10 * 60 * 1000
       , maxAge = options.maxAge || 60 * 60 * 1000
+        // TODO use string
+      , reSessionUrl = /\/user-session\/([^\/]*)(.*)/
       ;
 
     function purge() {
@@ -46,6 +49,7 @@
     // TODO rolling fingerprint that is different for each request
     function connectSession(req, res, next) {
         var sessionId
+          , m
           ;
 
         // TODO add Cookie support?
@@ -54,6 +58,13 @@
           || req.query[sessionKey]
           || UUID.v4()
           ;
+
+        m = reSessionUrl.exec(req.url);
+        if (m) {
+          // add trailing slash, at the least
+          sessionId = m[1];
+          req.url = m[2] || '/';
+        }
 
         req.session = appSession[sessionId];
 
@@ -78,17 +89,28 @@
     connectSession.headers = [lcSessionHeader];
 
     if (resProto.json) {
-      if (!resProto.corsSessionSendJson) {
-        resProto.corsSessionSendJson = resProto.json;
+      if (!resProto._corsSessionSendJson) {
+        resProto._corsSessionSendJson = resProto.json;
         resProto.json = function (data, opts) {
           this.meta(sessionKey, this.sessionId);
-          this.corsSessionSendJson(data, opts);
+          this._corsSessionSendJson(data, opts);
         };
       }
     }
+
+    /*
+    if (!resProto._corsSessionSend) {
+      resProto._corsSessionSend = resProto.end;
+      resProto.end = function (data) {
+        this.setHeader(sessionHeader, this.sessionId);
+        this._corsSessionSend(data);
+      };
+    }
+    */
 
     return connectSession;
   }
 
   module.exports = create;
+  module.exports.create = create;
 }());

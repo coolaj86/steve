@@ -13,6 +13,7 @@
     this.virgin = true;
     this.createdAt = Date.now();
     this.corsStore = MemoryStore.create();
+    this.store = this.corsStore;
   }
   Session.prototype.touch = function () {
     this.touchedAt = Date.now();
