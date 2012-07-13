@@ -19,31 +19,31 @@ There are 4 ways to set the session
   * via json body: `{ "userSession": "0123456789abcdef" }`
   * TODO cookies
 
-    (function () {
-      "use strict";
+        (function () {
+          "use strict";
 
-      var connect = require('connect')
-        , session = require('connect-cookieless-session').create()
-        ;
+          var connect = require('connect')
+            , session = require('connect-cookieless-session').create()
+            ;
 
-      // a simple http basic authorization
-      function authn(req, res, next) {
-        var token = []
-          ;
+          // a simple http basic authorization
+          function authn(req, res, next) {
+            var token = []
+              ;
 
-        req.session.count = req.session.count || 0;
-        req.session.count += 1;
+            req.session.count = req.session.count || 0;
+            req.session.count += 1;
 
-        res.end("I've seen you " + req.session.count + " times");
-      }
+            res.end("I've seen you " + req.session.count + " times");
+          }
 
-      connect
-        .use(session)
-        .use(shoppingCart)
-        .use(authn)
-        ;
+          connect
+            .use(session)
+            .use(shoppingCart)
+            .use(authn)
+            ;
 
-    }());
+        }());
 
 API
 ===
