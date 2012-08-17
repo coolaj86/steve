@@ -14,6 +14,24 @@
       , resProto = http.ServerResponse.prototype
       ;
 
+    resProto.warn = function (msg, code, opts) {
+      var self = this
+        ;
+
+      self._warns = self._warns || [];
+      if ('object' !== typeof opts) {
+        opts = {};
+      }
+
+      if (msg instanceof Error) {
+        msg = msg.message || msg.toString();
+      }
+
+      opts.message = msg;
+      opts.code = code;
+      self._warns.push(opts);
+    };
+
     resProto.error = function (msg, code, opts) {
       var self = this
         ;
@@ -21,6 +39,10 @@
       self._errors = self._errors || [];
       if ('object' !== typeof opts) {
         opts = {};
+      }
+
+      if (msg instanceof Error) {
+        msg = msg.message || msg.toString();
       }
 
       opts.message = msg;
@@ -67,6 +89,9 @@
       replacer = (opts.debug) ? null : removeStack;
       response.timestamp = Date.now();
       response.errors = self._errors || [];
+      if ((self._warns || []).length) {
+        response.warnings = self._warns || [];
+      }
       response.success = !response.errors.length;
       response.result = data;
 
