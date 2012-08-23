@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/coolaj86/steve.png)](http://travis-ci.org/coolaj86/steve)
 Steve - JSON's best friend
 ===
 
