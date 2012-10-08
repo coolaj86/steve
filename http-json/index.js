@@ -14,11 +14,24 @@
       , resProto = http.ServerResponse.prototype
       ;
 
-    resProto.warn = function (msg, code, opts) {
+    resProto._logger = function (level, msg, code, opts) {
       var self = this
+        , _levels = '_' + level + 's'
         ;
 
-      self._warns = self._warns || [];
+      self[_levels] = self[_levels] || [];
+
+      if (null === msg || undefined === msg || 0 === msg.length) {
+        return;
+      }
+
+      if (Array.isArray(msg)) {
+        msg.forEach(function (m) {
+          resProto._logger(level, m.error || m, m.code, m.opts || opts);
+        });
+        return;
+      }
+
       if ('object' !== typeof opts) {
         opts = {};
       }
@@ -29,26 +42,26 @@
 
       opts.message = msg;
       opts.code = code;
-      self._warns.push(opts);
+      self[_levels].push(opts);
+    };
+
+    resProto.warn = function (msg, code, opts) {
+      resProto._logger('warn', msg, code, opts);
     };
 
     resProto.error = function (msg, code, opts) {
-      var self = this
-        ;
-
-      self._errors = self._errors || [];
-      if ('object' !== typeof opts) {
-        opts = {};
-      }
-
-      if (msg instanceof Error) {
-        msg = msg.message || msg.toString();
-      }
-
-      opts.message = msg;
-      opts.code = code;
-      self._errors.push(opts);
+      resProto._logger('error', msg, code, opts);
     };
+
+    /*
+    resProto.info = function (msg, code, opts) {
+      resProto._logger('info', msg, code, opts);
+    };
+
+    resProto.debug = function (msg, code, opts) {
+      resProto._logger('info', msg, code, opts);
+    };
+    */
 
     // For adding things like 'session'
     resProto.meta = function (key, val) {

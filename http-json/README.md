@@ -22,6 +22,8 @@ Usage
           res.error(new Error("What time is it? Error time!"));
           res.json();
           return;
+        } else {
+          res.warn(new Error("Did you know that 1 out of 3 times is error time?"));
         }
 
         res.json("What time is it? Success time!");
@@ -36,6 +38,7 @@ Response
     {
         "success": true
       , "errors": []
+      , "warns": [{"message":"Did you know that 1 out of 3 times is error time?"}]
       , "foo-secret": 42
       , "timestamp": 1339631260781
       , "result": "What time is it? Success time!"
@@ -64,11 +67,22 @@ Optional `params` may be an object such as this
 http.ServerResponse.prototype.meta(key, value)
 ---
 
-Add a field to the "header" (sibling of `result`, `success`, etc)
+Add a field to the "header" (sibling of `result`, `errors`, etc)
+
+http.ServerResponse.prototype.warn(Error)
+---
+
+Add an Error to the `warns` array, but `success` is left as true.
+
+`Error` may also be `null`/`undefined` (ignored), an array of Errors, or an empty array (ignored).
+
+**Note**: By default, stack traces will be removed from warns.
 
 http.ServerResponse.prototype.error(Error)
 ---
 
-Add an Error to the `error` array and set `success` to false.
+Add an Error to the `errors` array and set `success` to false.
+
+`Error` may also be `null`/`undefined` (ignored), an array of Errors, or an empty array (ignored).
 
 **Note**: By default, stack traces will be removed from errors.
