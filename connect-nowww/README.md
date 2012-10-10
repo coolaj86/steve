@@ -42,7 +42,7 @@ Usage
         .use(nowww())
         .use(connect.favicon())
         .use(connect.static(__dirname + '/'))
-      ;
+        ;
 
       server.listen(3000);
       console.log('Listening on ', 3000);
