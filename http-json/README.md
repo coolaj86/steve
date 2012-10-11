@@ -38,7 +38,7 @@ Response
     {
         "success": true
       , "errors": []
-      , "warns": [{"message":"Did you know that 1 out of 3 times is error time?"}]
+      , "warnings": [{"message":"Did you know that 1 out of 3 times is error time?"}]
       , "foo-secret": 42
       , "timestamp": 1339631260781
       , "result": "What time is it? Success time!"
@@ -72,11 +72,11 @@ Add a field to the "header" (sibling of `result`, `errors`, etc)
 http.ServerResponse.prototype.warn(Error)
 ---
 
-Add an Error to the `warns` array, but `success` is left as true.
+Add an Error to the `warnings` array, but `success` is left as true.
 
 `Error` may also be `null`/`undefined` (ignored), an array of Errors, or an empty array (ignored).
 
-**Note**: By default, stack traces will be removed from warns.
+**Note**: By default, stack traces will be removed from warnings.
 
 http.ServerResponse.prototype.error(Error)
 ---

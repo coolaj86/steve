@@ -46,20 +46,20 @@
     };
 
     resProto.warn = function (msg, code, opts) {
-      resProto._logger('warn', msg, code, opts);
+      this._logger('warn', msg, code, opts);
     };
 
     resProto.error = function (msg, code, opts) {
-      resProto._logger('error', msg, code, opts);
+      this._logger('error', msg, code, opts);
     };
 
     /*
     resProto.info = function (msg, code, opts) {
-      resProto._logger('info', msg, code, opts);
+      this._logger('info', msg, code, opts);
     };
 
     resProto.debug = function (msg, code, opts) {
-      resProto._logger('info', msg, code, opts);
+      this._logger('info', msg, code, opts);
     };
     */
 
