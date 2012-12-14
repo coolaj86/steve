@@ -1,20 +1,20 @@
+/*jshint strict:true node:true es5:true onevar:true laxcomma:true laxbreak:true eqeqeq:true immed:true latedef:true undef:true unused:true*/
 (function () {
   "use strict";
 
   function nowww(req, res, next) {
-    var match
-      , host = (req.headers.host||'').replace(/^www\./, '')
+    var host = (req.headers.host||'').replace(/^www\./, '')
       , hostname = host.split(':')[0]
       , protocol = 'http' + (req.connection.encrypted ? 's' : '') + '://'
       , href = protocol + host + req.url
-      , url
       ;
 
     if (host === req.headers.host) {
       return next();
     }
 
-    res.statusCode = 302;
+    // Permanent Redirect
+    res.statusCode = 301;
     res.setHeader('Location', href);
     // TODO set token (cookie, header, something) to notify browser to notify user about www
     res.write(
