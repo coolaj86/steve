@@ -14,35 +14,60 @@
       , resProto = http.ServerResponse.prototype
       ;
 
-    resProto._logger = function (level, msg, code, opts) {
+    /*
+        Object.getOwnPropertyNames(e)
+        [ 'message',
+          'arguments',
+          'type',
+          'stack' ]
+     */
+    /* `msg` should be one of:
+     * `string`
+     * `Error`-like object (instanceof `Error` or has the key `message`)
+     * Object with { error: err, code: code, opts: opts }
+     * OR an array with the above
+     */
+    resProto._logger = function (level, errStuff, code) {
       var self = this
         , _levels = '_' + level + 's'
+        , err
+        , opts
         ;
 
-      self[_levels] = self[_levels] || [];
-
-      if (null === msg || undefined === msg || 0 === msg.length) {
+      if (null === errStuff || undefined === errStuff) {
         return;
       }
 
-      if (Array.isArray(msg)) {
-        msg.forEach(function (m) {
-          resProto._logger(level, m.error || m, m.code, m.opts || opts);
+      if ('function' === typeof errStuff.forEach || Array.isArray(errStuff)) {
+        errStuff.forEach(function (e) {
+          resProto._logger(level, e, code);
         });
         return;
       }
 
-      if ('object' !== typeof opts) {
+      if ('object' === typeof code) {
+        opts = code;
+        code = opts.code;
+      } else {
         opts = {};
+        opts.code = code;
       }
 
-      if (msg instanceof Error) {
-        msg = msg.message || msg.toString();
+      self[_levels] = self[_levels] || [];
+
+      err = errStuff.error || errStuff;
+      if ('object' !== typeof err) {
+        err = { message: String(err) };
+      }
+      err.code = code || err.code || errStuff.code;
+      err.type = err.type || errStuff.type;
+      err.message = err.message || errStuff.message;
+
+      if (!opts.debug) {
+        delete err.stack;
       }
 
-      opts.message = msg;
-      opts.code = code;
-      self[_levels].push(opts);
+      self[_levels].push(err);
     };
 
     resProto.warn = function (msg, code, opts) {
