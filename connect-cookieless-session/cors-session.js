@@ -12,11 +12,15 @@
     }
     this.virgin = true;
     this.createdAt = Date.now();
+    // this parameter is used to determine if the session has expired.
+    // use process.uptime() to make it independent of the system clock
+    this.lastUsed = process.uptime();
     this.corsStore = MemoryStore.create();
     this.store = this.corsStore;
   }
   Session.prototype.touch = function () {
     this.touchedAt = Date.now();
+    this.lastUsed = process.uptime();
   };
 
   function create() {

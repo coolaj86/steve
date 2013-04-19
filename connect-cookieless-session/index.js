@@ -24,26 +24,30 @@
       , lcSessionKey = sessionKey.toLowerCase()
       , appSession = {}
       , purgeInterval = options.purgeInterval || 10 * 60 * 1000
-      , maxAge = options.maxAge || 60 * 60 * 1000
+      // we switched to using process.uptime (seconds), but we don't
+      // want to change the API which is in milliseconds
+      , maxAge = (options.maxAge || 60 * 60 * 1000) / 1000
         // TODO use string
       , reSessionUrl = /\/user-session\/([^\/]*)(.*)/
       ;
 
     function purge() {
-      var now = Date.now()
-        , val
+      var now = process.uptime()
         ;
 
       Object.keys(appSession).forEach(function (key) {
-        val = appSession[key];
-        if ((now - val.timestamp) > maxAge) {
-          if (appSession[key]) {
-            delete appSession[key].corsStore;
-          }
+        // don't know why this would be neccesary, but there was a
+        // check for falsey values before so it might be needed somehow
+        if (!appSession[key] instanceof CorsSession) {
+          delete appSession[key];
+        }
+        else if ((now - appSession.lastUsed) > maxAge) {
+          delete appSession[key].corsStore;
           delete appSession[key];
         }
       });
     }
+    setInterval(purge, purgeInterval);
 
     // TODO fingerprint to prevent theft by Wireshark sniffers
     // TODO rolling fingerprint that is different for each request
@@ -82,8 +86,6 @@
         res.sessionId = sessionId;
         next();
     }
-
-    setInterval(purge, purgeInterval);
 
     // to allow headers through CORS
     connectSession.headers = [lcSessionHeader];
