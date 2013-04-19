@@ -7,10 +7,7 @@
     , UUID = require('node-uuid')
     //, MemoryStore = require('./memory-store')
     , CorsSession = require('./cors-session')
-    , defaultSessionKey = 'userSession'
-    , defaultUrlPrefix = 'user-session'
     //, defaultSessionAppKey = 'appSession'
-    , defaultSessionHeader = 'X-User-Session'
     //, defaultSessionAppHeader = 'X-App-Session'
     , resProto = http.ServerResponse.prototype
     ;
@@ -18,18 +15,18 @@
   function create(options) {
     options = options || {};
 
-    var sessionHeader = defaultSessionHeader
+    var appSession = {}
+      , sessionHeader = options.sessionHeader || 'X-User-Session'
       , lcSessionHeader = sessionHeader.toLowerCase()
-      , sessionKey = options.sessionKey || defaultSessionKey
+      , sessionKey = options.sessionKey || 'userSession'
       , lcSessionKey = sessionKey.toLowerCase()
-      , appSession = {}
+      , urlPrefix = options.urlPrefix || 'user-session'
+      , urlSessionRegExp = new RegExp('^/' + urlPrefix + '/([^/]*)(.*)')
       , purgeInterval = options.purgeInterval || 10 * 60 * 1000
       // we switched to using process.uptime (seconds), but we don't
       // want to change the API which is in milliseconds
       , maxAge = (options.maxAge || 60 * 60 * 1000) / 1000
       , maxCount = options.maxCount || Infinity
-        // TODO use string
-      , reSessionUrl = /\/user-session\/([^\/]*)(.*)/
       ;
 
     function purge() {
@@ -99,7 +96,7 @@
           || UUID.v4()
           ;
 
-        m = reSessionUrl.exec(req.url);
+        m = urlSessionRegExp.exec(req.url);
         if (m) {
           // add trailing slash, at the least
           sessionId = m[1];
