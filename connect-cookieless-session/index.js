@@ -27,6 +27,7 @@
       // we switched to using process.uptime (seconds), but we don't
       // want to change the API which is in milliseconds
       , maxAge = (options.maxAge || 60 * 60 * 1000) / 1000
+      , maxCount = options.maxCount || Infinity
         // TODO use string
       , reSessionUrl = /\/user-session\/([^\/]*)(.*)/
       ;
@@ -48,6 +49,41 @@
       });
     }
     setInterval(purge, purgeInterval);
+
+    function forcePurge() {
+      var allKeys
+        , excessCount
+        , excessKeys
+        ;
+
+      allKeys = Object.keys(appSession);
+
+      // remove enough to put us at 80% capacity to avoid calling this
+      // function too often
+      excessCount = Math.round(allKeys.length - 0.8 * maxCount);
+      if (excessCount <= 0) {
+        return;
+      }
+
+      allKeys = allKeys.sort(function (a ,b) {
+        // again, don't know how non-CorsSession objects could get in here,
+        // but if they do, move them to the front of the list for removal
+        if (!appSession[a] instanceof CorsSession) {
+          return -1;
+        }
+        if (!appSession[b] instanceof CorsSession) {
+          return 1;
+        }
+
+        return appSession[a].lastUsed - appSession[b].lastUsed;
+      });
+
+      excessKeys = allKeys.slice(0, excessCount);
+
+      excessKeys.forEach(function (key) {
+        delete appSession[key];
+      });
+    }
 
     // TODO fingerprint to prevent theft by Wireshark sniffers
     // TODO rolling fingerprint that is different for each request
@@ -74,6 +110,9 @@
 
         if (!req.session) {
           req.session = appSession[sessionId] = CorsSession.create();
+          if (Object.keys(appSession).length > maxCount) {
+            forcePurge();
+          }
         } else {
           delete req.session.virgin;
         }
