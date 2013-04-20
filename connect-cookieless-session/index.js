@@ -3,13 +3,11 @@
   "use strict";
 
   // TODO use one config and then auto camelcase headers
-  var http = require('http')
-    , UUID = require('node-uuid')
+  var UUID = require('node-uuid')
     //, MemoryStore = require('./memory-store')
     , CorsSession = require('./cors-session')
     //, defaultSessionAppKey = 'appSession'
     //, defaultSessionAppHeader = 'X-App-Session'
-    , resProto = http.ServerResponse.prototype
     ;
 
   function create(options) {
@@ -117,34 +115,15 @@
         // TODO else if (req.expireSession) { delete a replaced session }
         req.session.touch();
         res.setHeader(sessionHeader, sessionId);
+        if (res.meta) {
+          res.meta(sessionKey, sessionId);
+        }
 
-        // used by res.json
-        res.sessionId = sessionId;
         next();
     }
 
     // to allow headers through CORS
     connectSession.headers = [lcSessionHeader];
-
-    if (resProto.json) {
-      if (!resProto._corsSessionSendJson) {
-        resProto._corsSessionSendJson = resProto.json;
-        resProto.json = function (data, opts) {
-          this.meta(sessionKey, this.sessionId);
-          this._corsSessionSendJson(data, opts);
-        };
-      }
-    }
-
-    /*
-    if (!resProto._corsSessionSend) {
-      resProto._corsSessionSend = resProto.end;
-      resProto.end = function (data) {
-        this.setHeader(sessionHeader, this.sessionId);
-        this._corsSessionSend(data);
-      };
-    }
-    */
 
     return connectSession;
   }
