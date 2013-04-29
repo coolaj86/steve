@@ -7,8 +7,8 @@
     , makeRequests = require('./client')
     , testOpts = [
           {
-              purgeInterval: 1000
-            , maxAge: 60*1000
+              purgeInterval: 500
+            , maxAge: 10*1000
             , urlPrefix: 'obscure-string-that-would-never-be-default'
           }
         , {

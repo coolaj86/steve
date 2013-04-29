@@ -118,8 +118,96 @@
       sessionReq(handleResp, '/3rdResource');
     }
 
+    function testTimeout(nextTest) {
+      var sessionId = uuid.v4()
+        , resources = [
+              '/resource1'
+            , '/secondResource'
+            , '/3rdResource'
+          ]
+        , reqCounts = {}
+        , prevReqTime = null
+        ;
+
+      resources.forEach(function (res) {
+        reqCounts[res] = 0;
+      });
+      reqCounts.all = 0;
+
+      function makeReq(index) {
+        var res
+          ;
+
+        if (isNaN(index) || index < 0 || index >= resources.length) {
+          index = Math.floor(Math.random()*resources.length);
+        }
+        res = resources[index];
+
+        function handleResp(err, ahr, resp) {
+          var now = Date.now()
+            , timeDiff = now - prevReqTime
+            , count
+            , age
+            ;
+
+          assert.ifError(err);
+
+          assert.strictEqual(extractSessionHeader(ahr.headers), sessionId, "session ID isn't contained in the response headers");
+          if (typeof resp === 'string' || Buffer.isBuffer(resp)) {
+            count = Number(resp);
+          }
+          else {
+            assert.strictEqual(resp[sessionKey], sessionId, "session ID isn't contained in the JSON response");
+            if (typeof resp.result === 'object') {
+              count = resp.result.count;
+              age = resp.result.age;
+            }
+            else {
+              count = Number(resp.result);
+            }
+          }
+
+          if (timeDiff < sessionOpts.maxAge - 100) {
+            assert.strictEqual(count, reqCounts[res], "session's count of requests doesn't match our request count");
+
+            if (reqCounts.all > 4) {
+              timeDiff = sessionOpts.maxAge + sessionOpts.purgeInterval + 1000;
+              setTimeout(makeReq, timeDiff, 1);
+            }
+            else {
+              timeDiff = sessionOpts.maxAge * (3.75 + Math.random())/5 - 100;
+              setTimeout(makeReq, timeDiff);
+            }
+            reqCounts[res] += 1;
+            reqCounts.all  += 1;
+            prevReqTime = now;
+          }
+          else if (timeDiff < sessionOpts.maxAge + sessionOpts.purgeInterval + 100) {
+            throw new Error("ambiguous time difference in the timeout test");
+          }
+          else {
+            assert.strictEqual(count, 0, "count didn't reset after allowing session to expire");
+            if (age !== undefined) {
+              assert.of(age < 100, "age is greater than 100ms for what should be a new session");
+            }
+            nextTest();
+          }
+        }
+
+        sessionReq(handleResp, res, sessionId);
+      }
+
+      prevReqTime = Date.now();
+      makeReq();
+    }
+
     sequence.then(testMethods);
     sequence.then(testCreation);
+
+    // only test the timeout if it isn't going to make the test run forever
+    if (sessionOpts.maxAge + sessionOpts.purgeInterval < 90*1000) {
+      sequence.then(testTimeout);
+    }
     sequence.then(finished);
 
     /*

@@ -40,7 +40,7 @@
         if (!appSession[key] instanceof CorsSession) {
           delete appSession[key];
         }
-        else if ((now - appSession.lastUsed) > maxAge) {
+        else if ((now - appSession[key].lastUsed) > maxAge) {
           delete appSession[key].corsStore;
           delete appSession[key];
         }
