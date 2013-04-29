@@ -135,6 +135,12 @@
     // to allow headers through CORS
     connectSession.headers = [lcSessionHeader];
 
+    Object.defineProperty(connectSession, 'count', {
+      get: function () {
+        return Object.keys(appSession).length;
+      }
+    });
+
     return connectSession;
   }
 

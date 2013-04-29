@@ -23,6 +23,10 @@
       , session = cookielessSession(sessionOpts)
       ;
 
+    function reportSessionCount(req, res) {
+      res.json(session.count);
+    }
+
     app.corsPolicy = cors.config;
 
     cors.config.headers = cors.config.headers.concat(session.headers.slice());
@@ -40,6 +44,7 @@
       .use(connect.json())
       .use(connect.urlencoded())
       .use(cors)
+      .use('/session-count', reportSessionCount)
       .use(session)
       .use(connect.favicon())
       .use(connect.static(__dirname + '/../public'))

@@ -12,7 +12,7 @@
             , urlPrefix: 'obscure-string-that-would-never-be-default'
           }
         , {
-              maxCount: 20
+              maxCount: 30
             , sessionKey: 'session_ID'
           }
         , {

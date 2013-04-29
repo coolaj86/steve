@@ -138,7 +138,7 @@
         var res
           ;
 
-        if (isNaN(index) || index < 0 || index >= resources.length) {
+        while (isNaN(index) || index < 0 || index >= resources.length) {
           index = Math.floor(Math.random()*resources.length);
         }
         res = resources[index];
@@ -201,12 +201,113 @@
       makeReq();
     }
 
+    function testMaxCount(nextTest) {
+      var sessionIds = []
+        , sessionCounts = {}
+        , curCount
+        , randIntervalId
+        , newIntervalId
+        ;
+
+      function noop() {
+      }
+
+      function makeReq(cb, id) {
+        if (typeof cb !== 'function') {
+          id = cb;
+          cb = noop;
+        }
+        while (!id) {
+          if (sessionIds.length <= 0) {
+            throw new TypeError('no ID given and no previous IDs to use');
+          }
+          id = sessionIds[Math.floor(Math.random()*sessionIds.length)];
+        }
+
+        function handleResp(err, ahr, resp) {
+          var index
+            ;
+          assert.ifError(err);
+
+          assert.strictEqual(extractSessionHeader(ahr.headers), id, "session ID isn't contained in the response headers");
+          assert.strictEqual(resp[sessionKey], id, "session ID isn't contained in the JSON response");
+          assert.strictEqual(resp.result.count, sessionCounts[id], "session's count of requests doesn't match our request count");
+
+          sessionCounts[id] += 1;
+
+          index = sessionIds.indexOf(id);
+          while (index >= 0) {
+            sessionIds.splice(index, 1);
+            index = sessionIds.indexOf(id);
+          }
+          sessionIds.unshift(id);
+          cb();
+        }
+
+        sessionReq(handleResp, '/resource1', id);
+      }
+
+      function finishTest() {
+        sessionReq(function (err, ahr, resp) {
+          var expectedCount = Math.floor(0.8*sessionOpts.maxCount)
+            , remainingSessions
+            ;
+          assert.ifError(err);
+          curCount = resp.result;
+
+          assert.ok(Math.abs(curCount - expectedCount) < 2, "expected count doesn't match actual count after exceeding max count");
+
+          // this part checks to make sure it was the newest session that survived
+          remainingSessions = sessionIds.slice(0, curCount);
+          forEachAsync(remainingSessions, makeReq).then(nextTest);
+        }, '/session-count');
+      }
+
+      function createSession() {
+        var id = uuid.v4()
+          ;
+
+        curCount += 1;
+        sessionCounts[id] = 0;
+
+        if (curCount > sessionOpts.maxCount) {
+          clearInterval(randIntervalId);
+          clearInterval(newIntervalId);
+          setTimeout(finishTest, 1000);
+        }
+
+        makeReq(id);
+      }
+
+      // this isn't really a session request, but it's
+      // easier to do it this way anyway
+      sessionReq(function (err, ahr, resp) {
+        var index
+          ;
+        assert.ifError(err);
+        curCount = resp.result;
+
+        for (index = curCount; index < 0.8 * sessionOpts.maxCount; index += 1) {
+          createSession();
+        }
+
+        setTimeout(function () {
+          randIntervalId = setInterval(makeReq, 100);
+          newIntervalId  = setInterval(createSession, 1500);
+        }, 1000);
+      }, '/session-count');
+    }
+
     sequence.then(testMethods);
     sequence.then(testCreation);
 
     // only test the timeout if it isn't going to make the test run forever
     if (sessionOpts.maxAge + sessionOpts.purgeInterval < 90*1000) {
       sequence.then(testTimeout);
+    }
+    // only test the max count if it's low enough to be managable
+    if (sessionOpts.maxCount <= 50) {
+      sequence.then(testMaxCount);
     }
     sequence.then(finished);
 
