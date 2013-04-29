@@ -1,0 +1,14 @@
+{
+  "name":"steve-tests",
+  "version":"0.0.0",
+  "dependencies": {
+      "connect": ">= 1.8.x"
+    , "connect-xcors": ">= 0.0.0"
+    , "connect_router": ">= 0.0.0"
+    , "express-chromeframe": ">= 0.2.0"
+    , "node-uuid": "1.3.x"
+    , "ahr2": "2.x.x"
+    , "forEachAsync": ">= 0.0.0"
+    , "sequence": ">= 0.0.0"
+  }
+}
