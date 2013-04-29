@@ -24,7 +24,10 @@
       // we switched to using process.uptime (seconds), but we don't
       // want to change the API which is in milliseconds
       , maxAge = (options.maxAge || 60 * 60 * 1000) / 1000
+      // the below defaults are as they are because that was how
+      // they behaved before the options were implemented
       , maxCount = options.maxCount || Infinity
+      , alwaysCreate = options.hasOwnProperty('alwaysCreate') ? options.alwaysCreate : true
       ;
 
     function purge() {
@@ -88,10 +91,10 @@
           ;
 
         // TODO add Cookie support?
-        sessionId = req.sessionId = req.headers[lcSessionHeader]
+        sessionId = req.headers[lcSessionHeader]
           || (req.body && req.body[sessionKey])
           || req.query[sessionKey]
-          || UUID.v4()
+          || null
           ;
 
         m = urlSessionRegExp.exec(req.url);
@@ -101,19 +104,26 @@
           req.url = m[2] || '/';
         }
 
-        req.session = appSession[sessionId];
-
-        if (!req.session) {
-          req.session = appSession[sessionId] = CorsSession.create();
-          if (Object.keys(appSession).length > maxCount) {
-            forcePurge();
-          }
-        } else {
-          delete req.session.virgin;
+        if (!sessionId && alwaysCreate) {
+          sessionId = UUID.v4();
         }
 
-        // TODO else if (req.expireSession) { delete a replaced session }
-        req.session.touch();
+        if (sessionId) {
+          if (!appSession[sessionId]) {
+            appSession[sessionId] = CorsSession.create();
+            if (Object.keys(appSession).length > maxCount) {
+              forcePurge();
+            }
+          } else {
+            delete appSession[sessionId].virgin;
+          }
+
+          req.sessionId = sessionId;
+          req.session = appSession[sessionId];
+          // TODO else if (req.expireSession) { delete a replaced session }
+          req.session.touch();
+        }
+
         res.setHeader(sessionHeader, sessionId);
         if (res.meta) {
           res.meta(sessionKey, sessionId);
